@@ -4,6 +4,7 @@
 	int line = 1;
     int column = 1;
     int charnum=0;
+    char path[100];
 
     void clearcolumn();
     void addcolumn(int);
@@ -19,10 +20,19 @@ BREAK break
 CONTINUE continue
 RETURN return
 SEMICOLON ;
+COMMA ,
 LPAREN \(
 RPAREN \)
 LBRACE \{
 RBRACE \}
+CMPEQUAL \=\=
+EQUAL \=
+ADD \+
+SUB \-
+MUL \*
+DIV \/
+SMALLER \<
+BIGGER \>
 
 
 
@@ -113,6 +123,11 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
     printf("%-20s%-20s%-10d%-10d\n","SEMICOLON",yytext,line,column);
     charnum = yyleng;
     }
+{COMMA} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","COMMA",yytext,line,column);
+    charnum = yyleng;
+    }
 {LPAREN} {
     addcolumn(charnum);
     printf("%-20s%-20s%-10d%-10d\n","LPAREN",yytext,line,column);
@@ -133,6 +148,46 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
     printf("%-20s%-20s%-10d%-10d\n","RBRACE",yytext,line,column);
     charnum = yyleng;
     }
+{CMPEQUAL} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","CMPEQUAL",yytext,line,column);
+    charnum = yyleng;
+    }
+{EQUAL} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","EQUAL",yytext,line,column);
+    charnum = yyleng;
+    }
+{ADD} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","ADD",yytext,line,column);
+    charnum = yyleng;
+    }
+{SUB} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","SUB",yytext,line,column);
+    charnum = yyleng;
+    }
+{MUL} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","MUL",yytext,line,column);
+    charnum = yyleng;
+    }
+{DIV} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","DIV",yytext,line,column);
+    charnum = yyleng;
+    }
+{SMALLER} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","SMALLER",yytext,line,column);
+    charnum = yyleng;
+    }
+{BIGGER} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","BIGGER",yytext,line,column);
+    charnum = yyleng;
+    }
 
 
 \n {
@@ -147,7 +202,8 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
 
 %%
 int main(){
-	yyin=fopen("data.txt","r");
+    scanf("%s",path);
+	yyin=fopen(path,"r");
 	yylex();
 	return 0;
 }
