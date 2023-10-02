@@ -23,6 +23,13 @@ LPAREN \(
 RPAREN \)
 LBRACE \{
 RBRACE \}
+EQUAL \=
+ADD \+
+SUB \-
+MUL \*
+DIV \/
+SMALLER \<
+BIGGER \>
 
 
 
@@ -131,6 +138,41 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
 {RBRACE} {
     addcolumn(charnum);
     printf("%-20s%-20s%-10d%-10d\n","RBRACE",yytext,line,column);
+    charnum = yyleng;
+    }
+{EQUAL} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","EQUAL",yytext,line,column);
+    charnum = yyleng;
+    }
+{ADD} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","ADD",yytext,line,column);
+    charnum = yyleng;
+    }
+{SUB} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","SUB",yytext,line,column);
+    charnum = yyleng;
+    }
+{MUL} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","MUL",yytext,line,column);
+    charnum = yyleng;
+    }
+{DIV} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","DIV",yytext,line,column);
+    charnum = yyleng;
+    }
+{SMALLER} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","SMALLER",yytext,line,column);
+    charnum = yyleng;
+    }
+{BIGGER} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","BIGGER",yytext,line,column);
     charnum = yyleng;
     }
 
