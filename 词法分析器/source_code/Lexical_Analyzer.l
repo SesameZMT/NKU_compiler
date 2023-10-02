@@ -4,6 +4,7 @@
 	int line = 1;
     int column = 1;
     int charnum=0;
+    char path[100];
 
     void clearcolumn();
     void addcolumn(int);
@@ -19,10 +20,12 @@ BREAK break
 CONTINUE continue
 RETURN return
 SEMICOLON ;
+COMMA ,
 LPAREN \(
 RPAREN \)
 LBRACE \{
 RBRACE \}
+CMPEQUAL \=\=
 EQUAL \=
 ADD \+
 SUB \-
@@ -120,6 +123,11 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
     printf("%-20s%-20s%-10d%-10d\n","SEMICOLON",yytext,line,column);
     charnum = yyleng;
     }
+{COMMA} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","COMMA",yytext,line,column);
+    charnum = yyleng;
+    }
 {LPAREN} {
     addcolumn(charnum);
     printf("%-20s%-20s%-10d%-10d\n","LPAREN",yytext,line,column);
@@ -138,6 +146,11 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
 {RBRACE} {
     addcolumn(charnum);
     printf("%-20s%-20s%-10d%-10d\n","RBRACE",yytext,line,column);
+    charnum = yyleng;
+    }
+{CMPEQUAL} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","CMPEQUAL",yytext,line,column);
     charnum = yyleng;
     }
 {EQUAL} {
@@ -189,7 +202,8 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
 
 %%
 int main(){
-	yyin=fopen("data.txt","r");
+    scanf("%s",path);
+	yyin=fopen(path,"r");
 	yylex();
 	return 0;
 }
