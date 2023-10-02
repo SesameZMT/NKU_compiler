@@ -1,8 +1,10 @@
-12345 123 123456789 1234567890
-124132
-0122370010
-0x9384390abcd
-0XABCDE
-(_ajdskal
-s9089
-a_9_o);
+int a;
+
+int main()
+{
+int a;
+a = 1 + 2;
+if(a < 5)
+return 1;
+return 0;
+}

@@ -9,15 +9,15 @@
     void addcolumn(int);
 %}
 
-VOID "void"
-INT "int"
-CHAR "char"
-IF "if"
-WHILE "while"
-FOR "for"
-BREAK "break"
-CONTINUE "continue"
-RETURN "return"
+VOID void
+INT int
+CHAR char
+IF if
+WHILE while
+FOR for
+BREAK break
+CONTINUE continue
+RETURN return
 SEMICOLON ;
 LPAREN \(
 RPAREN \)
@@ -48,12 +48,92 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
     printf("%-20s%-20s%-10d%-10d%-20s\n","decimal_const",yytext,line,column,yytext);
     charnum = yyleng;
     } 
-{octal_const} {printf("line%d:(octal_const, %s)\n",line,yytext);} 
-{hexadecimal_const} {printf("line%d:(hexadecimal_const, %s)\n",line,yytext);}
-{Identifier} {printf("line%d:(Identifier, %s)\n",line,yytext);}
-{SEMICOLON} {printf("line%d:(SEMICOLON, %s)\n",line,yytext);}
-{LPAREN} {printf("line%d:(LPAREN, %s)\n",line,yytext);}
-{RPAREN} {printf("line%d:(RPAREN, %s)\n",line,yytext);}
+{octal_const} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d%-20s\n","octal_const",yytext,line,column,yytext);
+    charnum = yyleng;
+    } 
+{hexadecimal_const} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d%-20s\n","hexadecimal_const",yytext,line,column,yytext);
+    charnum = yyleng;
+    }
+{VOID} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","VOID",yytext,line,column);
+    charnum = yyleng;
+    }
+{INT} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","INT",yytext,line,column);
+    charnum = yyleng;
+    }
+{CHAR} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","CHAR",yytext,line,column);
+    charnum = yyleng;
+    }
+{IF} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","IF",yytext,line,column);
+    charnum = yyleng;
+    }
+{WHILE} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","WHILE",yytext,line,column);
+    charnum = yyleng;
+    }
+{FOR} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","FOR",yytext,line,column);
+    charnum = yyleng;
+    }
+{BREAK} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","BREAK",yytext,line,column);
+    charnum = yyleng;
+    }
+{CONTINUE} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","CONTINUE",yytext,line,column);
+    charnum = yyleng;
+    }
+{RETURN} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","RETURN",yytext,line,column);
+    charnum = yyleng;
+    }
+{Identifier} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d%-20p\n","Identifier",yytext,line,column,yytext);
+    charnum = yyleng;
+    }
+{SEMICOLON} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","SEMICOLON",yytext,line,column);
+    charnum = yyleng;
+    }
+{LPAREN} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","LPAREN",yytext,line,column);
+    charnum = yyleng;
+    }
+{RPAREN} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","RPAREN",yytext,line,column);
+    charnum = yyleng;
+    }
+{LBRACE} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","LBRACE",yytext,line,column);
+    charnum = yyleng;
+    }
+{RBRACE} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","RBRACE",yytext,line,column);
+    charnum = yyleng;
+    }
+
 
 \n {
     ++line;
