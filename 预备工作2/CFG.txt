@@ -3,12 +3,14 @@
 <declaration-list> ::= <declaration> <declaration-list> | <declaration> // 声明列表可以是一个声明，也可以是一个声明后跟着一个声明列表
 
 <declaration> ::= <var-declaration> | <fun-declaration> // 声明可以是变量声明或函数声明
+
 //变量声明
 <var-declaration> ::= <type-specifier> <id-list> ';' // 变量声明由类型说明符、标识符列表和分号组成
 
 <type-specifier> ::= 'int' | 'void' // 类型说明符可以是'int'或'void'
 
 <id-list> ::= <identifier> ',' <id-list> | <identifier> // 标识符列表可以是一个标识符，也可以是一个标识符后跟着一个标识符列表
+
 //函数声明
 <fun-declaration> ::= <type-specifier> <identifier> '(' <params> ')' <compound-stmt> // 函数声明由类型说明符、标识符、参数列表和复合语句组成
 
@@ -26,6 +28,7 @@
 
 <statement> ::= <expression-stmt> | <compound-stmt> | <selection-stmt>
              | <iteration-stmt>|  <return-stmt>// 语句可以是表达式语句、复合语句、选择语句、迭代语句或返回语句
+
 //赋值语句
 <expression-stmt> ::= <expression> ';' // 表达式语句由一个表达式和一个分号组成
 
