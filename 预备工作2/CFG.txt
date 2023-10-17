@@ -1,0 +1,81 @@
+<program> ::= <declaration-list> // 程序由一系列声明组成
+
+<declaration-list> ::= <declaration> <declaration-list> | <declaration> // 声明列表可以是一个声明，也可以是一个声明后跟着一个声明列表
+
+<declaration> ::= <var-declaration> | <fun-declaration> // 声明可以是变量声明或函数声明
+
+<var-declaration> ::= <type-specifier> <id-list> ';' // 变量声明由类型说明符、标识符列表和分号组成
+
+<type-specifier> ::= 'int' | 'void' // 类型说明符可以是'int'或'void'
+
+<id-list> ::= <identifier> ',' <id-list> | <identifier> // 标识符列表可以是一个标识符，也可以是一个标识符后跟着一个标识符列表
+
+<fun-declaration> ::= <type-specifier> <identifier> '(' <params> ')' <compound-stmt> // 函数声明由类型说明符、标识符、参数列表和复合语句组成
+
+<params> ::= <param-list> | 'void' // 参数可以是参数列表或'void'
+
+<param-list> ::= <param> ',' <param-list> | <param> // 参数列表可以是一个参数，也可以是一个参数后跟着一个参数列表
+
+<param> ::= <type-specifier> <identifier> // 参数由类型说明符和标识符组成
+
+<compound-stmt> ::= '{' <local-declarations> <statement-list> '}' // 复合语句由局部声明和语句列表组成
+
+<local-declarations> ::= <var-declaration> <local-declarations> | ε // 局部声明可以是变量声明后跟着局部声明，也可以为空
+
+<statement-list> ::= <statement> <statement-list> | ε // 语句列表可以是一个语句后跟着一个语句列表，也可以为空
+
+<statement> ::= <expression-stmt> | <compound-stmt> | <selection-stmt>
+             | <iteration-stmt>|  <return-stmt>// 语句可以是表达式语句、复合语句、选择语句、迭代语句或返回语句
+
+<expression-stmt> ::= <expression> ';' // 表达式语句由一个表达式和一个分号组成
+
+<selection-stmt> ::= 'if' '(' <expression> ')' <statement> 'else' <statement>
+                   | 'if' '(' <expression> ')' <statement> // 选择语句可以是if-else语句或if语句
+
+<iteration-stmt> ::= 'while' '(' <expression> ')' <statement>
+                   | 'for' '(' <expression-stmt> <expression-stmt> <expression> ')' <statement> // 迭代语句可以是while循环或for循环
+
+<return-stmt> ::= 'return' <expression> ';'
+                | 'return' ';' // 返回语句可以是带有表达式的返回语句，也可以是没有表达式的返回语句
+
+<expression> ::= <var> '=' <expression>
+               | <simple-expression> // 表达式可以是赋值表达式或简单表达式
+
+<var> ::= <identifier> | <identifier> '[' <expression> ']' // 变量可以是标识符或数组元素
+
+<simple-expression> ::= <additive-expression> <relop> <additive-expression>
+                      | <additive-expression> // 简单表达式可以是关系表达式或加法表达式
+
+<relop> ::= '<' | '<=' | '>' | '>=' | '==' | '!=' // 关系运算符包括小于、小于等于、大于、大于等于、等于和不等于
+
+<additive-expression> ::= <additive-expression> '+' <term>
+                        | <additive-expression> '-' <term>
+                        | <term> // 加法表达式可以是加法、减法或项
+
+<term> ::= <term> '*' <factor>
+         | <term> '/' <factor>
+         | <factor>// 项可以是乘法、除法或因子
+
+<factor> ::= '(' <expression> ')'
+           | <var>
+           | <call>
+           | <integer>// 因子可以是括号内的表达式、变量、函数调用或整数
+
+<call> ::= <identifier> '(' <args> ')' // 函数调用由标识符和参数组成
+
+<args> ::= <arg-list> | ε // 参数可以是参数列表或空
+
+<arg-list> ::= <expression> ',' <arg-list> | <expression>// 参数列表可以是一个表达式，也可以是一个表达式后跟着一个参数列表
+
+<identifier>::= 由字母开始，后面跟着字母或数字的字符串
+<integer>::= 由一个或多个数字组成的字符串
+
+<identifier> ::= <letter> <letter-or-digit>* // 标识符由一个字母开始，后面可以跟着字母或数字
+
+<integer> ::= <digit>+ // 整数由一个或多个数字组成
+
+<letter> ::= 'a' | 'b' | ... | 'z' | 'A' | 'B' | ... | 'Z' // 字母可以是小写字母或大写字母
+
+<digit> ::= '0' | '1' | ... | '9' // 数字可以是0到9之间的任何数字
+
+<letter-or-digit> ::= <letter> | <digit> // 字母或数字可以是字母或数字
