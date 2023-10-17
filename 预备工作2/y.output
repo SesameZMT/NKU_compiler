@@ -1,0 +1,219 @@
+Grammar
+
+    0 $accept: line_list $end
+
+    1 line_list: line
+    2          | line_list line
+
+    3 line: expression CR
+
+    4 expression: term
+    5           | expression ADD term
+    6           | expression SUB term
+
+    7 term: single
+    8     | term MUL single
+    9     | term DIV single
+
+   10 single: NUM
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    ADD (258) 5
+    SUB (259) 6
+    MUL (260) 8
+    DIV (261) 9
+    CR (262) 3
+    NUM <inum> (263) 10
+
+
+Nonterminals, with rules where they appear
+
+    $accept (9)
+        on left: 0
+    line_list (10)
+        on left: 1 2
+        on right: 0 2
+    line (11)
+        on left: 3
+        on right: 1 2
+    expression <inum> (12)
+        on left: 4 5 6
+        on right: 3 5 6
+    term <inum> (13)
+        on left: 7 8 9
+        on right: 4 5 6 8 9
+    single <inum> (14)
+        on left: 10
+        on right: 7 8 9
+
+
+State 0
+
+    0 $accept: • line_list $end
+
+    NUM  shift, and go to state 1
+
+    line_list   go to state 2
+    line        go to state 3
+    expression  go to state 4
+    term        go to state 5
+    single      go to state 6
+
+
+State 1
+
+   10 single: NUM •
+
+    $default  reduce using rule 10 (single)
+
+
+State 2
+
+    0 $accept: line_list • $end
+    2 line_list: line_list • line
+
+    $end  shift, and go to state 7
+    NUM   shift, and go to state 1
+
+    line        go to state 8
+    expression  go to state 4
+    term        go to state 5
+    single      go to state 6
+
+
+State 3
+
+    1 line_list: line •
+
+    $default  reduce using rule 1 (line_list)
+
+
+State 4
+
+    3 line: expression • CR
+    5 expression: expression • ADD term
+    6           | expression • SUB term
+
+    ADD  shift, and go to state 9
+    SUB  shift, and go to state 10
+    CR   shift, and go to state 11
+
+
+State 5
+
+    4 expression: term •
+    8 term: term • MUL single
+    9     | term • DIV single
+
+    MUL  shift, and go to state 12
+    DIV  shift, and go to state 13
+
+    $default  reduce using rule 4 (expression)
+
+
+State 6
+
+    7 term: single •
+
+    $default  reduce using rule 7 (term)
+
+
+State 7
+
+    0 $accept: line_list $end •
+
+    $default  accept
+
+
+State 8
+
+    2 line_list: line_list line •
+
+    $default  reduce using rule 2 (line_list)
+
+
+State 9
+
+    5 expression: expression ADD • term
+
+    NUM  shift, and go to state 1
+
+    term    go to state 14
+    single  go to state 6
+
+
+State 10
+
+    6 expression: expression SUB • term
+
+    NUM  shift, and go to state 1
+
+    term    go to state 15
+    single  go to state 6
+
+
+State 11
+
+    3 line: expression CR •
+
+    $default  reduce using rule 3 (line)
+
+
+State 12
+
+    8 term: term MUL • single
+
+    NUM  shift, and go to state 1
+
+    single  go to state 16
+
+
+State 13
+
+    9 term: term DIV • single
+
+    NUM  shift, and go to state 1
+
+    single  go to state 17
+
+
+State 14
+
+    5 expression: expression ADD term •
+    8 term: term • MUL single
+    9     | term • DIV single
+
+    MUL  shift, and go to state 12
+    DIV  shift, and go to state 13
+
+    $default  reduce using rule 5 (expression)
+
+
+State 15
+
+    6 expression: expression SUB term •
+    8 term: term • MUL single
+    9     | term • DIV single
+
+    MUL  shift, and go to state 12
+    DIV  shift, and go to state 13
+
+    $default  reduce using rule 6 (expression)
+
+
+State 16
+
+    8 term: term MUL single •
+
+    $default  reduce using rule 8 (term)
+
+
+State 17
+
+    9 term: term DIV single •
+
+    $default  reduce using rule 9 (term)
