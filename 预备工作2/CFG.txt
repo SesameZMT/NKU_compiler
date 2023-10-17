@@ -3,13 +3,13 @@
 <declaration-list> ::= <declaration> <declaration-list> | <declaration> // 声明列表可以是一个声明，也可以是一个声明后跟着一个声明列表
 
 <declaration> ::= <var-declaration> | <fun-declaration> // 声明可以是变量声明或函数声明
-
+//变量声明
 <var-declaration> ::= <type-specifier> <id-list> ';' // 变量声明由类型说明符、标识符列表和分号组成
 
 <type-specifier> ::= 'int' | 'void' // 类型说明符可以是'int'或'void'
 
 <id-list> ::= <identifier> ',' <id-list> | <identifier> // 标识符列表可以是一个标识符，也可以是一个标识符后跟着一个标识符列表
-
+//函数声明
 <fun-declaration> ::= <type-specifier> <identifier> '(' <params> ')' <compound-stmt> // 函数声明由类型说明符、标识符、参数列表和复合语句组成
 
 <params> ::= <param-list> | 'void' // 参数可以是参数列表或'void'
@@ -26,18 +26,21 @@
 
 <statement> ::= <expression-stmt> | <compound-stmt> | <selection-stmt>
              | <iteration-stmt>|  <return-stmt>// 语句可以是表达式语句、复合语句、选择语句、迭代语句或返回语句
-
+//赋值语句
 <expression-stmt> ::= <expression> ';' // 表达式语句由一个表达式和一个分号组成
 
+//控制流语句
 <selection-stmt> ::= 'if' '(' <expression> ')' <statement> 'else' <statement>
                    | 'if' '(' <expression> ')' <statement> // 选择语句可以是if-else语句或if语句
 
 <iteration-stmt> ::= 'while' '(' <expression> ')' <statement>
                    | 'for' '(' <expression-stmt> <expression-stmt> <expression> ')' <statement> // 迭代语句可以是while循环或for循环
 
+//返回语句
 <return-stmt> ::= 'return' <expression> ';'
                 | 'return' ';' // 返回语句可以是带有表达式的返回语句，也可以是没有表达式的返回语句
 
+//表达式
 <expression> ::= <var> '=' <expression>
                | <simple-expression> // 表达式可以是赋值表达式或简单表达式
 
@@ -61,12 +64,14 @@
            | <call>
            | <integer>// 因子可以是括号内的表达式、变量、函数调用或整数
 
+//函数调用
 <call> ::= <identifier> '(' <args> ')' // 函数调用由标识符和参数组成
 
 <args> ::= <arg-list> | ε // 参数可以是参数列表或空
 
 <arg-list> ::= <expression> ',' <arg-list> | <expression>// 参数列表可以是一个表达式，也可以是一个表达式后跟着一个参数列表
 
+//标识符和整数
 <identifier>::= 由字母开始，后面跟着字母或数字的字符串
 <integer>::= 由一个或多个数字组成的字符串
 

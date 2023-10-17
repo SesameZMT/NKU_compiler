@@ -73,7 +73,7 @@ gcc main.o -o main
 
 arm链接
 ```sh
-arm-linux-gnueabihf-gcc factorial_arm.S -o factorial_arm -static
+arm-linux-gnueabihf-gcc main.S -o main -static
 ```
 
 
