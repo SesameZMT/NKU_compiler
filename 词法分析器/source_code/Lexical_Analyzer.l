@@ -30,6 +30,7 @@ EQUAL \=
 ADD \+
 SUB \-
 MUL \*
+NOTE_HEAD \/\/
 DIV \/
 SMALLER \<
 BIGGER \>
@@ -48,7 +49,7 @@ hexadecimal_const (0x|0X){hexadecimal_digit}*
 
 Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
 
-
+Note ({NOTE_HEAD})({digit}|{identifier_nondigit}|\ )+
 
 
 %%
@@ -186,6 +187,11 @@ Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
 {BIGGER} {
     addcolumn(charnum);
     printf("%-20s%-20s%-10d%-10d\n","BIGGER",yytext,line,column);
+    charnum = yyleng;
+    }
+{Note} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","NOTE",yytext,line,column);
     charnum = yyleng;
     }
 
