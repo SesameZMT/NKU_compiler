@@ -49,11 +49,17 @@ hexadecimal_const (0x|0X){hexadecimal_digit}*
 
 Identifier ({identifier_nondigit})({identifier_nondigit}|{digit})*
 
-Note ({NOTE_HEAD})({digit}|{identifier_nondigit}|\ )+
-
+single_Note ({NOTE_HEAD})(.*|" ")+
+multiline_Note "/*"[^*/]*"*/"
+Note ({single_Note}|{multiline_Note})
 
 %%
 
+{Note} {
+    addcolumn(charnum);
+    printf("%-20s%-20s%-10d%-10d\n","NOTE",yytext,line,column);
+    charnum = yyleng;
+    }
 {decimal_const} {
     addcolumn(charnum);
     printf("%-20s%-20s%-10d%-10d%-20s\n","decimal_const",yytext,line,column,yytext);
@@ -189,12 +195,6 @@ Note ({NOTE_HEAD})({digit}|{identifier_nondigit}|\ )+
     printf("%-20s%-20s%-10d%-10d\n","BIGGER",yytext,line,column);
     charnum = yyleng;
     }
-{Note} {
-    addcolumn(charnum);
-    printf("%-20s%-20s%-10d%-10d\n","NOTE",yytext,line,column);
-    charnum = yyleng;
-    }
-
 
 \n {
     ++line;
