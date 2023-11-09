@@ -1,8 +1,8 @@
 .PHONY:test,clean
-lex:analysis.l analysis.y
-	bison -d analysis.y
-	flex analysis.l
-	gcc -o test ast.c analysis.tab.c lex.yy.c main.c
+lex:
+	bison -d source_code/analysis.y -o source_code/analysis.tab.c
+	flex -o source_code/lex.yy.c source_code/analysis.l 
+	gcc -o test source_code/ast.c source_code/analysis.tab.c source_code/lex.yy.c source_code/main.c
 
 clean:
-	rm -fr lex.yy.c analysis.tab.* test
+	rm -fr source_code/lex.yy.c source_code/analysis.tab.* test
