@@ -69,20 +69,16 @@ SymbolTable::SymbolTable(SymbolTable *prev)
 */
 SymbolEntry* SymbolTable::lookup(std::string name)
 {
-    // Todo
-    SymbolTable* table = this;
-    while(table!=nullptr)
-    {
-        if(table->symbolTable.find(name)!=table->symbolTable.end())
-        {
-            return table->symbolTable[name];
-        }
+	SymbolTable* cur=this;
+	 if (this->symbolTable.find(name)!=symbolTable.end()) {
+                return this->symbolTable.find(name)->second;
+            }
+         else if(cur->getPrev()!= nullptr){
+         	cur = cur->getPrev();
+         	return cur->lookup(name);
+         }
         else
-        {
-            table=table->prev;
-        }
-    }
-    return nullptr;
+        	return nullptr;
 }
 
 // install the entry into current symbol table.

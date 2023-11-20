@@ -1,7 +1,10 @@
 #ifndef __AST_H__
 #define __AST_H__
 
+#include "SymbolTable.h"
+#include "Type.h"
 #include <fstream>
+#include <queue>
 
 class SymbolEntry;
 
@@ -23,6 +26,16 @@ protected:
 public:
     ExprNode(SymbolEntry *symbolEntry) : symbolEntry(symbolEntry){};
 };
+class SingelExpr : public ExprNode
+{
+private:
+    int op;
+    ExprNode *expr1;
+public:
+    enum {MIN,NOT,POS};
+    SingelExpr(SymbolEntry *se, int op, ExprNode*expr1) : ExprNode(se), op(op), expr1(expr1){};
+    void output(int level);
+};
 
 class BinaryExpr : public ExprNode
 {
@@ -30,7 +43,7 @@ private:
     int op;
     ExprNode *expr1, *expr2;
 public:
-    enum {ADD, SUB, AND, OR, LESS};
+    enum {ADD, SUB, MUL, DIV, MOD ,AND, OR, LESS, MORE, NOTEQUAL, EQUAL, LESSEQ, MOREEQ};
     BinaryExpr(SymbolEntry *se, int op, ExprNode*expr1, ExprNode*expr2) : ExprNode(se), op(op), expr1(expr1), expr2(expr2){};
     void output(int level);
 };
@@ -45,8 +58,40 @@ public:
 class Id : public ExprNode
 {
 public:
+    
     Id(SymbolEntry *se) : ExprNode(se){};
     void output(int level);
+};
+
+class IDList
+{
+private:
+    std::queue<SymbolEntry*> idlist;
+public:
+    IDList(std::queue<SymbolEntry*> idlist) : idlist(idlist) {};
+    void output(int level);
+    std::queue<SymbolEntry*> getList() {return this->idlist;};
+    void setType(Type *type) {
+        std::queue<SymbolEntry*> idl;
+        while(!this->idlist.empty()){
+    	SymbolEntry* se=this->idlist.front();
+    	se->setType(type);
+        this->idlist.pop();
+        idl.push(se);
+        }
+        this->idlist=idl;
+    };
+};
+
+class ParaList
+{
+private:
+    std::queue<SymbolEntry*> idList;
+public:
+    ParaList(std::queue<SymbolEntry*> idList) : idList(idList){};
+    ParaList() {};
+    void output(int level);
+    std::queue<SymbolEntry*> getList() {return this->idList;};
 };
 
 class StmtNode : public Node
@@ -57,6 +102,7 @@ class CompoundStmt : public StmtNode
 private:
     StmtNode *stmt;
 public:
+    CompoundStmt() {};
     CompoundStmt(StmtNode *stmt) : stmt(stmt) {};
     void output(int level);
 };
@@ -73,9 +119,9 @@ public:
 class DeclStmt : public StmtNode
 {
 private:
-    Id *id;
+    IDList *idlist;
 public:
-    DeclStmt(Id *id) : id(id){};
+    DeclStmt(IDList *idlist) : idlist(idlist){};
     void output(int level);
 };
 
@@ -100,14 +146,61 @@ public:
     void output(int level);
 };
 
-class ReturnStmt : public StmtNode
+class WhileStmt : public StmtNode
 {
 private:
-    ExprNode *retValue;
+    ExprNode *cond;
+    StmtNode *Stmt;
 public:
-    ReturnStmt(ExprNode*retValue) : retValue(retValue) {};
+    WhileStmt(ExprNode *cond, StmtNode *Stmt) : cond(cond), Stmt(Stmt) {};
     void output(int level);
 };
+
+class ParaIDList
+{
+private:
+    std::queue<ExprNode*> exprlist;
+public:
+    ParaIDList(std::queue<ExprNode*> exprlist) : exprlist(exprlist) {};
+    ParaIDList()  {};
+    std::queue<ExprNode*> getList() {return this->exprlist;};
+    void output(int level);
+};
+
+
+class InitIDList
+{
+private:
+    std::queue<SymbolEntry*> idList;
+    std::queue<ExprNode*> nums;
+public:
+    InitIDList(std::queue<SymbolEntry*> idList, std::queue<ExprNode*> nums) : idList(idList), nums(nums){};
+    void output(int level);
+    std::queue<SymbolEntry*> getList() {return this->idList;};
+    std::queue<ExprNode*> getNums() {return this->nums;};
+    void setType(Type *type) {
+        std::queue<SymbolEntry*> idl;
+        while(!this->idList.empty()){
+    	SymbolEntry* se=this->idList.front();
+    	se->setType(type);
+        this->idList.pop();
+        idl.push(se);
+        }
+        this->idList=idl;
+    };
+};
+
+class InitStmt : public StmtNode
+{
+private:
+    InitIDList* initIDList;
+public:
+    InitStmt(InitIDList* initIDList) : initIDList(initIDList){};
+    void output(int level);
+    
+};
+
+
 
 class AssignStmt : public StmtNode
 {
@@ -119,13 +212,47 @@ public:
     void output(int level);
 };
 
+
+class ExprStmt : public StmtNode
+{
+private:
+    ExprNode *expr;
+public:
+    ExprStmt(ExprNode *expr) : expr(expr) {};
+    ExprStmt()  {};
+    void output(int level);
+};
+
+class FuncExpr : public ExprNode
+{
+private:
+    ParaIDList *paraidlist;
+public:
+    FuncExpr(SymbolEntry *se) : ExprNode(se) {};
+    FuncExpr(SymbolEntry *se, ParaIDList *paraidlist) : ExprNode(se), paraidlist(paraidlist) {};
+    void output(int level);
+};
+
 class FunctionDef : public StmtNode
 {
 private:
     SymbolEntry *se;
+    ParaList *paraList;
     StmtNode *stmt;
+    
 public:
-    FunctionDef(SymbolEntry *se, StmtNode *stmt) : se(se), stmt(stmt){};
+    FunctionDef(SymbolEntry *se, ParaList *paraList, StmtNode *stmt) : se(se), paraList(paraList), stmt(stmt){};
+    void output(int level);
+};
+
+class ReturnStmt : public StmtNode
+{
+private:
+    ExprNode *retValue;
+    StmtNode *funcCall;
+public:
+    ReturnStmt(ExprNode*retValue) : retValue(retValue) {};
+    ReturnStmt(StmtNode *funcCall) : funcCall(funcCall) {};
     void output(int level);
 };
 

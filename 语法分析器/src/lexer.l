@@ -21,6 +21,10 @@
 %}
 
 /* definitions section */
+HEXADECIMAL 0[xX][0-9a-fA-F]+
+OCTAL 0[0-7]+
+LINECOMMENT \/\/[^(\r\n|\n|\r)]*
+BLOCKCOMMENT ("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
 DECIMIAL ([1-9][0-9]*|0)
 ID [[:alpha:]_][[:alpha:][:digit:]_]*
 EOL (\r\n|\n|\r)
@@ -29,6 +33,16 @@ WHITE [\t ]
 
 %%
     /* rules section */
+{LINECOMMENT} yylineno--;
+{BLOCKCOMMENT} yylineno--;
+"while" {
+    dump_tokens("WHILE\t%s\n", yytext);
+    return WHILE;
+}
+"const" {
+    dump_tokens("CONST\t%s\n", yytext);
+    return CONST;
+}
 "int" {
     dump_tokens("INT\t%s\n", yytext);
     return INT;
@@ -54,9 +68,43 @@ WHITE [\t ]
     return RETURN;
 }
 
+"&&" {
+    dump_tokens("AND\t%s\n", yytext);
+    return AND;
+}
+"||" {
+    dump_tokens("OR\t%s\n", yytext);
+    return OR;
+}
+"!=" {
+    dump_tokens("NOTEQUAL\t%s\n", yytext);
+    return NOTEQUAL;  
+}
+"==" {
+    dump_tokens("EQUAL\t%s\n", yytext);
+    return EQUAL;
+}
+"<=" {
+    dump_tokens("LESSEQ\t%s\n", yytext);
+    return LESSEQ;
+}
+">=" {
+    dump_tokens("MOREEQ\t%s\n", yytext);
+    return MOREEQ;
+}
+"!" {
+    dump_tokens("ASSIGN\t%s\n", yytext);
+    return NOT;  
+}
+
 "=" {
     dump_tokens("ASSIGN\t%s\n", yytext);
     return ASSIGN;
+}
+
+"%" {
+    dump_tokens("MOD\t%s\n", yytext);
+    return MOD;
 }
 
 "<" {
@@ -64,9 +112,29 @@ WHITE [\t ]
     return LESS;
 }
 
+">" {
+    dump_tokens("MORE\t%s\n", yytext);
+    return MORE;
+}
 "+" {
     dump_tokens("ADD\t%s\n", yytext);
     return ADD;
+}
+"-" {
+    dump_tokens("SUB\t%s\n", yytext);
+    return SUB;
+}
+"*" {
+    dump_tokens("MUL\t%s\n", yytext);
+    return MUL;
+}
+"/" {
+    dump_tokens("DIV\t%s\n", yytext);
+    return DIV;
+}
+"," {
+    dump_tokens("COMMA\t%s\n", yytext);
+    return COMMA;   
 }
 
 ";" {
@@ -92,6 +160,21 @@ WHITE [\t ]
 "}" {
     dump_tokens("RBRACE\t%s\n", yytext);
     return RBRACE;
+}
+
+{HEXADECIMAL} {
+    int temp;
+    sscanf(yytext, "%x", &temp);
+    dump_tokens("HEXADECIMAL\t%s\t%d\n", yytext, temp);
+    yylval.itype = temp;
+    return INTEGER;
+}
+{OCTAL} {
+    int temp;
+    sscanf(yytext, "%o", &temp);
+    dump_tokens("OCTAL\t%s\t%d\n", yytext, temp);
+    yylval.itype = temp;
+    return INTEGER;
 }
 
 {DECIMIAL} {
