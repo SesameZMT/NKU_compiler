@@ -1,12 +1,25 @@
 #ifndef __SYMBOLTABLE_H__
 #define __SYMBOLTABLE_H__
 
+#include <optional>
 #include <string>
 #include <map>
+#include "Type.h"
 
 class Type;
 class Operand;
 
+inline bool issysruntime(char* str)
+{
+    std::string t = str;
+    if(t=="getint"||t=="getch"||t=="getfloat"||t=="getarray"||t=="getfarray"
+    ||t=="putint"||t=="putch"||t=="putfloat"||t=="putarray"||t=="putfarray"
+    ||t=="putf"||t=="starttime"||t=="stoptime")
+    {
+        return true;
+    }
+    return false;
+}
 class SymbolEntry
 {
 private:
@@ -35,19 +48,31 @@ public:
 
     Compiler should create constant symbol entry for literal constant '1'.
 */
-class ConstantSymbolEntry : public SymbolEntry
+class IntSymbolEntry : public SymbolEntry
 {
 private:
     int value;
 
 public:
-    ConstantSymbolEntry(Type *type, int value);
-    virtual ~ConstantSymbolEntry() {};
+    IntSymbolEntry(Type *type, int value);
+    virtual ~IntSymbolEntry() {};
     int getValue() const {return value;};
     std::string toStr();
     // You can add any function you need here.
 };
 
+class FloatSymbolEntry : public SymbolEntry
+{
+private:
+    float value;
+
+public:
+    FloatSymbolEntry(Type *type, float value);
+    virtual ~FloatSymbolEntry() {};
+    int getValue() const {return value;};
+    std::string toStr();
+    // You can add any function you need here.
+};
 
 /* 
     Symbol entry for identifier. Example:
@@ -77,8 +102,11 @@ private:
     enum {GLOBAL, PARAM, LOCAL};
     std::string name;
     int scope;
-    Operand *addr;  // The address of the identifier.
-    // You can add any field you need here.
+    Operand *addr;
+    std::optional<float> fval = std::nullopt;
+    std::optional<int> ival = std::nullopt;
+    std::optional<std::vector<float>> farray = std::nullopt;
+    std::optional<std::vector<int>> iarray = std::nullopt;
 
 public:
     IdentifierSymbolEntry(Type *type, std::string name, int scope);
@@ -89,6 +117,24 @@ public:
     bool isLocal() const {return scope >= LOCAL;};
     int getScope() const {return scope;};
     void setAddr(Operand *addr) {this->addr = addr;};
+    void changeFloat(std::optional<float> f){fval = f;}
+    void changeInt(std::optional<int> i){ival = i;}
+    void changeFloatArray(std::optional<std::vector<float>> f){farray = f;}
+    void changeIntArray(std::optional<std::vector<int>> i){iarray = i;}
+    bool hasInt(){return ival!=std::nullopt;}
+    bool hasFloat(){return fval!=std::nullopt;}
+    bool hasIntArray(){return iarray!=std::nullopt;}
+    bool hasFloatArray(){return farray!=std::nullopt;}
+    bool hasValue(){return fval!=std::nullopt||ival!=std::nullopt;}
+    bool hasArray(){return farray!=std::nullopt||iarray!=std::nullopt;}
+    std::optional<int> getIntop(){return ival;}
+    std::optional<std::vector<int>> getIntArrayop(){return iarray;}
+    std::optional<float> getFloatop(){return fval;}
+    std::optional<std::vector<float>> getFloatArrayop(){return farray;}
+    int getInt(std::vector<int>);
+    float getFloat(std::vector<int>);
+    int getInt(){if(fval!=std::nullopt)return static_cast<int>(fval.value());else return ival.value();}
+    float getFloat(){if(ival!=std::nullopt)return static_cast<float>(ival.value());else return fval.value();}
     Operand* getAddr() {return addr;};
     // You can add any function you need here.
 };
@@ -115,15 +161,12 @@ public:
 class TemporarySymbolEntry : public SymbolEntry
 {
 private:
-    int stack_offset;
     int label;
 public:
     TemporarySymbolEntry(Type *type, int label);
     virtual ~TemporarySymbolEntry() {};
     std::string toStr();
     int getLabel() const {return label;};
-    void setOffset(int offset) { this->stack_offset = offset; };
-    int getOffset() { return this->stack_offset; };
     // You can add any function you need here.
 };
 
@@ -143,9 +186,70 @@ public:
     SymbolTable* getPrev() {return prev;};
     int getLevel() {return level;};
     static int getLabel() {return counter++;};
+    friend void initsys();
 };
 
 extern SymbolTable *identifiers;
 extern SymbolTable *globals;
+
+inline void initsys()
+{
+    /*
+    std::string strarr[13]{"getint","getch","getfloat","getarray","getfarray"
+    ,"putint","putch","putfloat","putarray","putfarray"
+    ,"putf","starttime","stoptime"};
+    */
+    std::string strarr[13]{"_getint","_getch","_getfloat","_getarray","_getfarray"
+    ,"_putint","_putch","_putfloat","_putarray","_putfarray"
+    ,"_putf","_starttime","_stoptime"};
+
+    SymbolTable * iter = identifiers;
+    while(iter->prev!=nullptr)
+    {
+        iter = iter->prev;
+    }
+    for(int i = 0;i<13;++i)
+    {
+        Type *funcType;
+        if(i<2)
+        {
+            funcType = new FunctionType(TypeSystem::intType,{});
+        }
+        if(i==2)
+        {
+            funcType = new FunctionType(TypeSystem::floatType,{});
+        }
+        if(i==3)
+        {
+            funcType = new FunctionType(TypeSystem::intType,{new PointerType(TypeSystem::intType)});
+        }
+        if(i==4)
+        {
+            funcType = new FunctionType(TypeSystem::intType,{new PointerType(TypeSystem::floatType)});
+        }
+        if(i==5||i==6)
+        {
+            funcType = new FunctionType(TypeSystem::voidType,{TypeSystem::intType});
+        }
+        if(i==7)
+        {
+            funcType = new FunctionType(TypeSystem::voidType,{TypeSystem::floatType});
+        }
+        if(i==8)
+        {
+            funcType = new FunctionType(TypeSystem::voidType,{TypeSystem::intType,new PointerType(TypeSystem::intType)});
+        }
+        if(i==9)
+        {
+            funcType = new FunctionType(TypeSystem::voidType,{TypeSystem::intType,new PointerType(TypeSystem::floatType)});
+        }
+        if(i>9)
+        {
+            funcType = new FunctionType(TypeSystem::voidType,{});
+        }//todo
+        SymbolEntry *se = new IdentifierSymbolEntry(funcType, strarr[i], identifiers->getLevel());
+        iter->install(strarr[i], se);
+    }
+}
 
 #endif
