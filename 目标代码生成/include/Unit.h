@@ -2,8 +2,8 @@
 #define __UNIT_H__
 
 #include <vector>
+#include "Ast.h"
 #include "Function.h"
-#include "AsmBuilder.h"
 
 class Unit
 {
@@ -12,17 +12,19 @@ class Unit
 
 private:
     std::vector<Function *> func_list;
+    Instruction* globalbb{};
 public:
     Unit() = default;
     ~Unit() ;
     void insertFunc(Function *);
     void removeFunc(Function *);
+    void deadinstelim();
     void output() const;
+    Instruction*& getbb(){return globalbb;}
     iterator begin() { return func_list.begin(); };
     iterator end() { return func_list.end(); };
     reverse_iterator rbegin() { return func_list.rbegin(); };
     reverse_iterator rend() { return func_list.rend(); };
-    void genMachineCode(MachineUnit* munit);
 };
 
 #endif

@@ -3,7 +3,6 @@
 #include <vector>
 #include <set>
 #include "Instruction.h"
-#include "AsmBuilder.h"
 
 class Function;
 
@@ -25,7 +24,7 @@ public:
     void insertBefore(Instruction *, Instruction *);
     void remove(Instruction *);
     bool empty() const { return head->getNext() == head;}
-    void output() const;
+    int output() const;
     bool succEmpty() const { return succ.empty(); };
     bool predEmpty() const { return pred.empty(); };
     void addSucc(BasicBlock *);
@@ -33,6 +32,7 @@ public:
     void addPred(BasicBlock *);
     void removePred(BasicBlock *);
     int getNo() { return no; };
+    int deadinstelim();
     Function *getParent() { return parent; };
     Instruction* begin() { return head->getNext();};
     Instruction* end() { return head;};
@@ -44,7 +44,8 @@ public:
     bb_iterator pred_end() { return pred.end(); };
     int getNumOfPred() const { return pred.size(); };
     int getNumOfSucc() const { return succ.size(); };
-    void genMachineCode(AsmBuilder*);
 };
+
+inline void addPredAndSucc(BasicBlock * pred,BasicBlock *succ) {pred->addSucc(succ);succ->addPred(pred);}
 
 #endif

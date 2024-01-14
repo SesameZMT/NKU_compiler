@@ -8,7 +8,6 @@
 #include <iostream>
 #include "BasicBlock.h"
 #include "SymbolTable.h"
-#include "AsmBuilder.h"
 
 class Unit;
 
@@ -18,16 +17,17 @@ class Function
     typedef std::vector<BasicBlock *>::reverse_iterator reverse_iterator;
 
 private:
-    std::vector<BasicBlock *> block_list;
-    SymbolEntry *sym_ptr;
-    BasicBlock *entry;
-    Unit *parent;
-
+    std::vector<BasicBlock *> block_list{};
+    SymbolEntry *sym_ptr{};
+    BasicBlock *entry{};
+    Unit *parent{};
+    std::vector<SymbolEntry *> params{};
 public:
     Function(Unit *, SymbolEntry *);
     ~Function();
     void insertBlock(BasicBlock *bb) { block_list.push_back(bb); };
     BasicBlock *getEntry() { return entry; };
+    int deadinstelim();
     void remove(BasicBlock *bb);
     void output() const;
     std::vector<BasicBlock *> &getBlockList(){return block_list;};
@@ -36,7 +36,7 @@ public:
     reverse_iterator rbegin() { return block_list.rbegin(); };
     reverse_iterator rend() { return block_list.rend(); };
     SymbolEntry *getSymPtr() { return sym_ptr; };
-    void genMachineCode(AsmBuilder*);
+    void changeParams(std::vector<SymbolEntry *> p){params = p;}
 };
 
 #endif
