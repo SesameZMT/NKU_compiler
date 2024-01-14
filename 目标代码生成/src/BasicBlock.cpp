@@ -4,6 +4,28 @@
 
 extern FILE* yyout;
 
+int BasicBlock::deadinstelim()
+{
+    int count = 0;
+    for (auto inst = head->getNext(); inst != head; inst = inst->getNext())
+    {
+        if(inst->getInstType()!=15)
+        {
+            auto op = inst->getDef();
+            if(op!=nullptr&&op->getUse().empty())
+            {
+                auto next = inst->getNext();
+                auto prev = inst->getPrev();
+                (inst->getPrev())->setNext(next);
+                (inst->getNext())->setPrev(prev);
+                inst->setParent(nullptr);
+                ++count;
+                delete inst;
+            }
+        }
+    }
+    return count;
+}
 // insert the instruction to the front of the basicblock.
 void BasicBlock::insertFront(Instruction *inst)
 {
@@ -20,10 +42,12 @@ void BasicBlock::insertBack(Instruction *inst)
 void BasicBlock::insertBefore(Instruction *dst, Instruction *src)
 {
     // Todo
-
+    dst->setNext(src);
+    dst->setPrev(src->getPrev());
+    src->setPrev(dst);
+    (dst->getPrev())->setNext(dst);
     dst->setParent(this);
 }
-
 // remove the instruction from intruction list.
 void BasicBlock::remove(Instruction *inst)
 {
@@ -31,10 +55,10 @@ void BasicBlock::remove(Instruction *inst)
     inst->getNext()->setPrev(inst->getPrev());
 }
 
-void BasicBlock::output() const
+int BasicBlock::output() const
 {
     fprintf(yyout, "B%d:", no);
-
+    int res = 0;
     if (!pred.empty())
     {
         fprintf(yyout, "%*c; preds = %%B%d", 32, '\t', pred[0]->getNo());
@@ -43,7 +67,12 @@ void BasicBlock::output() const
     }
     fprintf(yyout, "\n");
     for (auto i = head->getNext(); i != head; i = i->getNext())
+    {
         i->output();
+        if(i->getInstType()==3)
+            res = 1;
+    }
+    return res;
 }
 
 void BasicBlock::addSucc(BasicBlock *bb)
@@ -66,18 +95,6 @@ void BasicBlock::addPred(BasicBlock *bb)
 void BasicBlock::removePred(BasicBlock *bb)
 {
     pred.erase(std::find(pred.begin(), pred.end(), bb));
-}
-
-void BasicBlock::genMachineCode(AsmBuilder* builder) 
-{
-    auto cur_func = builder->getFunction();
-    auto cur_block = new MachineBlock(cur_func, no);
-    builder->setBlock(cur_block);
-    for (auto i = head->getNext(); i != head; i = i->getNext())
-    {
-        i->genMachineCode(builder);
-    }
-    cur_func->InsertBlock(cur_block);
 }
 
 BasicBlock::BasicBlock(Function *f)
@@ -104,5 +121,6 @@ BasicBlock::~BasicBlock()
         bb->removeSucc(this);
     for(auto &bb:succ)
         bb->removePred(this);
-    parent->remove(this);
+    if(parent!=nullptr)
+        parent->remove(this);
 }
