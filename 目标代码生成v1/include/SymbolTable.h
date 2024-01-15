@@ -11,9 +11,11 @@ class SymbolEntry
 {
 private:
     int kind;
+    bool constant;
 protected:
     enum {CONSTANT, VARIABLE, TEMPORARY};
     Type *type;
+    SymbolEntry* next;
 
 public:
     SymbolEntry(Type *type, int kind);
@@ -25,6 +27,8 @@ public:
     void setType(Type *type) {this->type = type;};
     virtual std::string toStr() = 0;
     // You can add any function you need here.
+    SymbolEntry* getNext() const { return next; };
+    bool setNext(SymbolEntry* se);
 };
 
 
@@ -46,6 +50,7 @@ public:
     int getValue() const {return value;};
     std::string toStr();
     // You can add any function you need here.
+    ConstantSymbolEntry(Type* type): SymbolEntry(type, SymbolEntry::CONSTANT) {};
 };
 
 
@@ -79,9 +84,16 @@ private:
     int scope;
     Operand *addr;  // The address of the identifier.
     // You can add any field you need here.
+    bool constant;
+    int paramNo;
+    int value;
+    // 数组相关
+    int* arrayValue;
+    bool allZero;
+    int notZeroNum;
 
 public:
-    IdentifierSymbolEntry(Type *type, std::string name, int scope);
+    IdentifierSymbolEntry(Type *type, std::string name, int scope, int paramNo=-1);
     virtual ~IdentifierSymbolEntry() {};
     std::string toStr();
     bool isGlobal() const {return scope == GLOBAL;};
@@ -91,6 +103,24 @@ public:
     void setAddr(Operand *addr) {this->addr = addr;};
     Operand* getAddr() {return addr;};
     // You can add any function you need here.
+    bool inited;
+    void setConst();
+    bool getConst(){return constant;};
+    int getParamNo(){return paramNo;};
+    int getValue();
+    bool setValue(int value);
+    // 数组相关
+    void setArrayValue(int* arrayValue)
+    {
+        /* 暂时不考虑常量的话 */
+        this->arrayValue = arrayValue;
+    }
+    ;
+    int* getArrayValue() const { return arrayValue; };
+    void setAllZero() { allZero = true; };
+    bool isAllZero() const { return allZero; };
+    int getNotZeroNum() const { return notZeroNum; }
+    void setNotZeroNum(int num) { notZeroNum = num; }
 };
 
 
@@ -117,14 +147,17 @@ class TemporarySymbolEntry : public SymbolEntry
 private:
     int stack_offset;
     int label;
+    int para_No=-1;
 public:
     TemporarySymbolEntry(Type *type, int label);
+    TemporarySymbolEntry(Type *type, int label,int para_No);
     virtual ~TemporarySymbolEntry() {};
     std::string toStr();
     int getLabel() const {return label;};
     void setOffset(int offset) { this->stack_offset = offset; };
     int getOffset() { return this->stack_offset; };
     // You can add any function you need here.
+    int getParamNo(){return para_No;};
 };
 
 // symbol table managing identifier symbol entries
@@ -140,6 +173,7 @@ public:
     SymbolTable(SymbolTable *prev);
     void install(std::string name, SymbolEntry* entry);
     SymbolEntry* lookup(std::string name);
+    SymbolEntry* lookup_cur_block(std::string name);
     SymbolTable* getPrev() {return prev;};
     int getLevel() {return level;};
     static int getLabel() {return counter++;};

@@ -1,4 +1,5 @@
 #include "SymbolTable.h"
+#include"Type.h"
 #include <iostream>
 #include <sstream>
 
@@ -6,6 +7,25 @@ SymbolEntry::SymbolEntry(Type *type, int kind)
 {
     this->type = type;
     this->kind = kind;
+    this->next=nullptr;
+}
+
+bool SymbolEntry::setNext(SymbolEntry* se)
+{
+    SymbolEntry* s = this;
+    while (s->getNext()) 
+    {
+        s = s->getNext();
+    }
+    if (s == this)
+    {
+        this->next = se;
+    }
+    else 
+    {
+        s->setNext(se);
+    }
+    return true;
 }
 
 ConstantSymbolEntry::ConstantSymbolEntry(Type *type, int value) : SymbolEntry(type, SymbolEntry::CONSTANT)
@@ -20,20 +40,49 @@ std::string ConstantSymbolEntry::toStr()
     return buffer.str();
 }
 
-IdentifierSymbolEntry::IdentifierSymbolEntry(Type *type, std::string name, int scope) : SymbolEntry(type, SymbolEntry::VARIABLE), name(name)
+IdentifierSymbolEntry::IdentifierSymbolEntry(Type *type, std::string name, int scope,int paramNo) : SymbolEntry(type, SymbolEntry::VARIABLE),
+ name(name),paramNo(paramNo)
 {
     this->scope = scope;
     addr = nullptr;
+    this->constant=false;
+    this->inited=false;
+}
+
+bool IdentifierSymbolEntry::setValue(int value)
+{
+    this->value=value;
+    return true;
+}
+
+int IdentifierSymbolEntry::getValue()
+{
+    return this->value;
 }
 
 std::string IdentifierSymbolEntry::toStr()
 {
-    return "@" + name;
+    if(type->isFunc())
+        return '@'+name;
+    return name;
 }
+
+//
+void IdentifierSymbolEntry::setConst()
+{
+    this->constant=true;
+}
+
 
 TemporarySymbolEntry::TemporarySymbolEntry(Type *type, int label) : SymbolEntry(type, SymbolEntry::TEMPORARY)
 {
     this->label = label;
+}
+
+TemporarySymbolEntry::TemporarySymbolEntry(Type *type, int label,int no) : SymbolEntry(type, SymbolEntry::TEMPORARY)
+{
+    this->label = label;
+    this->para_No=no;
 }
 
 std::string TemporarySymbolEntry::toStr()
@@ -70,7 +119,37 @@ SymbolTable::SymbolTable(SymbolTable *prev)
 */
 SymbolEntry* SymbolTable::lookup(std::string name)
 {
-    // Todo
+    SymbolTable* table = this;
+    while(table!=nullptr)
+    {
+        if(table->symbolTable.find(name)!=table->symbolTable.end())
+        {
+            return table->symbolTable[name];
+        }
+        else
+        {
+            table=table->prev;
+            //return nullptr;
+        }
+    }
+    return nullptr;
+}
+
+SymbolEntry* SymbolTable::lookup_cur_block(std::string name)
+{
+    SymbolTable* table = this;
+    while(table!=nullptr)
+    {
+        if(table->symbolTable.find(name)!=table->symbolTable.end())
+        {
+            return table->symbolTable[name];
+        }
+        else
+        {
+            //table=table->prev;
+            return nullptr;
+        }
+    }
     return nullptr;
 }
 

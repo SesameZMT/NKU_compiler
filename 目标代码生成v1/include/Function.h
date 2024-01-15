@@ -24,6 +24,7 @@ private:
     Unit *parent;
 
 public:
+    std::vector<Operand *> params;//参数列表
     Function(Unit *, SymbolEntry *);
     ~Function();
     void insertBlock(BasicBlock *bb) { block_list.push_back(bb); };

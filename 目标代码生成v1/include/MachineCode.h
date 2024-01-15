@@ -74,7 +74,7 @@ public:
     int getNo() {return no;};
     std::vector<MachineOperand*>& getDef() {return def_list;};
     std::vector<MachineOperand*>& getUse() {return use_list;};
-    MachineBlock* getParent() {return this->parent;};
+    MachineBlock * getParent(){return parent;};
 };
 
 class BinaryMInstruction : public MachineInstruction
@@ -141,7 +141,9 @@ class StackMInstrcuton : public MachineInstruction
 public:
     enum opType { PUSH, POP };
     StackMInstrcuton(MachineBlock* p, int op, 
-                MachineOperand* src,
+                std::vector<MachineOperand*> regs,
+                MachineOperand* src1,
+                MachineOperand* src2=nullptr,
                 int cond = MachineInstruction::NONE);
     void output();
 };
@@ -170,6 +172,7 @@ public:
     std::vector<MachineBlock*>& getPreds() {return pred;};
     std::vector<MachineBlock*>& getSuccs() {return succ;};
     void output();
+    MachineFunction* getParent() { return parent;}
 };
 
 class MachineFunction
@@ -193,6 +196,7 @@ public:
     int AllocSpace(int size) { this->stack_size += size; return this->stack_size; };
     void InsertBlock(MachineBlock* block) { this->block_list.push_back(block); };
     void addSavedRegs(int regno) {saved_regs.insert(regno);};
+    std::vector<MachineOperand*> getSavedRegs();
     void output();
 };
 
@@ -200,12 +204,15 @@ class MachineUnit
 {
 private:
     std::vector<MachineFunction*> func_list;
+    std::vector<SymbolEntry*> global_list;//全局变量list
     void PrintGlobalDecl();
 public:
     std::vector<MachineFunction*>& getFuncs() {return func_list;};
     std::vector<MachineFunction*>::iterator begin() { return func_list.begin(); };
     std::vector<MachineFunction*>::iterator end() { return func_list.end(); };
     void InsertFunc(MachineFunction* func) { func_list.push_back(func);};
+    void InsertGlobal(SymbolEntry* global){global_list.push_back(global);};
+    void PrintGlobal();
     void output();
 };
 
