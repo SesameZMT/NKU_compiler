@@ -21,17 +21,10 @@
 %}
 
 /* definitions section */
-%x COMMENT
 DECIMIAL ([1-9][0-9]*|0)
-OCTAL (0[0-7]*)
-HEX  (0[xX]([0-9]|[a-f]|[A-F])*)
-FLOAT (((([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+))([eE][+-]?[0-9]+)?)|([0-9]+[eE][+-]?[0-9]+))
-HEXFLOAT (0[xX]((([0-9]|[a-f]|[A-F])+(\.)?([0-9]|[a-f]|[A-F])*)|(\.([0-9]|[a-f]|[A-F])+))[pP][+-]?[0-9]+[fFlL]?)
 ID [[:alpha:]_][[:alpha:][:digit:]_]*
 EOL (\r\n|\n|\r)
 WHITE [\t ]
-SLCOMMENT \/\/[^\n]*
-MLCOMMENT \/\*
 /*  Your code here (lab3). */
 
 %%
@@ -44,11 +37,6 @@ MLCOMMENT \/\*
 "void" {
     dump_tokens("VOID\t%s\n", yytext);
     return VOID;
-}
-
-"float" {
-    dump_tokens("INT\t%s\n", yytext);
-    return FLOAT;
 }
 
 "if" {
@@ -66,23 +54,11 @@ MLCOMMENT \/\*
     return RETURN;
 }
 
-"while" {
-    dump_tokens("while\t%s\n", yytext);
-    return WHILE;
-} 
-
-"break" {
-    dump_tokens("break\t%s\n", yytext);
-    return BREAK;
-} 
-"continue" {
-    dump_tokens("continue\t%s\n", yytext);
-    return CONTINUE;
-} 
-"const" {
-    dump_tokens("const\t%s\n", yytext);
-    return CONST;
+"&&" {
+    dump_tokens("AND\t%s\n", yytext);
+    return AND;
 }
+
 "=" {
     dump_tokens("ASSIGN\t%s\n", yytext);
     return ASSIGN;
@@ -93,62 +69,9 @@ MLCOMMENT \/\*
     return LESS;
 }
 
-">"         {
-    dump_tokens("GREATER\t%s\n", yytext);
-    return GREATER;
-}
-
-"!"         {
-    dump_tokens("NOT\t%s\n", yytext);
-    return NOT;
-}
-"||"        {
-    dump_tokens("LOR\t%s\n", yytext);
-    return LOR;
-}
-"&&"        {
-    dump_tokens("LAND\t%s\n", yytext);
-    return LAND;
-}
-"<="        {
-    dump_tokens("NGREATER\t%s\n", yytext);
-    return NGREATER;
-}
-">="        {
-    dump_tokens("NLESS\t%s\n", yytext);
-    return NLESS;
-}
-"=="        {
-    dump_tokens("EQUAL\t%s\n", yytext);
-    return EQUAL;
-}
-"!="        {
-    dump_tokens("NEQUAL\t%s\n", yytext);
-    return NEQUAL;
-}
 "+" {
     dump_tokens("ADD\t%s\n", yytext);
     return ADD;
-}
-
-"-" {
-    dump_tokens("SUB\t%s\n", yytext);
-    return SUB;
-}
-
-"*" {
-    dump_tokens("MUL\t%s\n", yytext);
-    return MUL;
-}
-
-"/" {
-    dump_tokens("DIV\t%s\n", yytext);
-    return DIV;
-}
-
-"%" {
-    dump_tokens("MOD\t%s\n", yytext);
-    return MOD;
 }
 
 ";" {
@@ -176,61 +99,12 @@ MLCOMMENT \/\*
     return RBRACE;
 }
 
-","         {
-    dump_tokens("COMMA\t%s\n", yytext);
-    return COMMA;
-}
-
-"[" 	    {
-    dump_tokens("LBRACKET\t%s\n", yytext);
-    return LBRACKET;
-}
-
-"]" 	    {
-    dump_tokens("RBRACKET\t%s\n", yytext);
-    return RBRACKET;
-}
-
-{SLCOMMENT} {}
-
-{MLCOMMENT} {
-	BEGIN COMMENT;
-}
-
-<COMMENT>[^*\n]*        {}
-
-<COMMENT>"*"+[^*/\n]*    {}
-
-<COMMENT>{EOL} { yylineno++; }
-<COMMENT>"*/"        {
-	BEGIN INITIAL;
-}
-
-{DECIMIAL}  {
-    char *lexeme;
-    lexeme = new char[strlen(yytext) + 1];
-    strcpy(lexeme, yytext);
-    dump_tokens("INTEGER\t%s\n", yytext,lexeme);
-    yylval.strtype = lexeme;
+{DECIMIAL} {
+    int decimal;
+    decimal = atoi(yytext);
+    dump_tokens("DECIMAL\t%s\t%d\n", yytext, decimal);
+    yylval.itype = decimal;
     return INTEGER;
-}
-
-{OCTAL}  {
-    char *lexeme;
-    lexeme = new char[strlen(yytext) + 1];
-    strcpy(lexeme, yytext);
-    dump_tokens("OCTAL\t%s\n", yytext,lexeme);
-    yylval.strtype = lexeme;
-    return OCTAL;
-}
-
-{HEX}  {
-    char *lexeme;
-    lexeme = new char[strlen(yytext) + 1];
-    strcpy(lexeme, yytext);
-    dump_tokens("HEX\t%s\n", yytext,lexeme);
-    yylval.strtype = lexeme;
-    return HEX;
 }
 
 {ID} {
@@ -242,23 +116,6 @@ MLCOMMENT \/\*
     return ID;
 }
 
-{FLOAT} {
-    char *lexeme;
-    lexeme = new char[strlen(yytext) + 1];
-    strcpy(lexeme, yytext);
-    dump_tokens("FLOAT\t%s\n", yytext,lexeme);
-    yylval.strtype = lexeme;
-    return FLT;
-}
-
-{HEXFLOAT} {
-    char *lexeme;
-    lexeme = new char[strlen(yytext) + 1];
-    strcpy(lexeme, yytext);
-    dump_tokens("FLOAT\t%s\n", yytext,lexeme);
-    yylval.strtype = lexeme;
-    return FLT;
-}
 {EOL} yylineno++;
 
 {WHITE}

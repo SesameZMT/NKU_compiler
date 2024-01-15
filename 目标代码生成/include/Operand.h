@@ -14,7 +14,7 @@ class Operand
 typedef std::vector<Instruction *>::iterator use_iterator;
 
 private:
-    Instruction *def{};                // The instruction where this operand is defined.
+    Instruction *def;                // The instruction where this operand is defined.
     std::vector<Instruction *> uses; // Intructions that use this operand.
     SymbolEntry *se;                 // The symbol entry of this operand.
 public:
@@ -29,8 +29,8 @@ public:
     use_iterator use_begin() {return uses.begin();};
     use_iterator use_end() {return uses.end();};
     Type* getType() {return se->getType();};
-    void changeType(Type* t) {se->setType(t);}
     std::string toStr() const;
+    SymbolEntry * getEntry() { return se; };
 };
 
 #endif

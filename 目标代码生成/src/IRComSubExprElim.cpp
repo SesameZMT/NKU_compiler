@@ -37,7 +37,7 @@ bool IRComSubExprElim::localCSE(Function *func)
             if (preInstIt != exprs.end())
             {
                 // TODO: 把对当前指令的def的use改成对于preInst的def的use，并删除当前指令。
-                result = false;
+
             }
             else
                 exprs.emplace_back(inst);
